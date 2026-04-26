@@ -3,6 +3,11 @@ import json
 import re
 from .resources import load_limited_list, load_typeline_conf
 
+def normalize_card_text(text):
+    # Keep the line break before ①, but collapse it for ②+ style markers and bullets.
+    normalized = text.replace('\r\n', '\n')
+    return re.sub(r'\n(?=[②-⑳●])', '', normalized)
+
 def generate_cards_json(tmp_dir, output_path, res_dir="res"):
     # Generate cards.json from json1.json
     print("Generating cards.json from json1.json...")
@@ -33,9 +38,9 @@ def generate_cards_json(tmp_dir, output_path, res_dir="res"):
                     types_str = ""
                     if "text" in card:
                         if "desc" in card["text"]:
-                            desc = card["text"]["desc"].replace('\r\n', '\n')
+                            desc = normalize_card_text(card["text"]["desc"])
                         if "pdesc" in card["text"]:
-                            pdesc = card["text"]["pdesc"].replace('\r\n', '\n')
+                            pdesc = normalize_card_text(card["text"]["pdesc"])
                         if "types" in card["text"]:
                             types_str = card["text"]["types"]
 
